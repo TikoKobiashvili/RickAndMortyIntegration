@@ -1,24 +1,30 @@
 # main.py
 import asyncio
 import json
+import os
 import uuid
 from datetime import datetime
 from app.rick_and_morty_client import RickAndMortyClient
 
+RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "results")
+os.makedirs(RESULTS_DIR, exist_ok=True)
 
-async def save_to_json(data, filename):
+
+async def save_to_json(data, entity):
     """
     Save the fetched data to a JSON file with a structured format.
     Parameters:
         data (list): The data to save.
-        filename (str): The name of the JSON file.
+        entity (str): The name of the JSON file.
     """
     structured_data = {
         "id": str(uuid.uuid4()),  # Generate a unique ID
         "RawData": data  # Store the original API response
     }
+    # Create the full path for the JSON file
+    full_path = os.path.join(RESULTS_DIR, f'{entity}.json')
     # Write data to a JSON file with indentation for readability
-    with open(filename, "w") as f:
+    with open(full_path, "w") as f:
         json.dump(structured_data, f, indent=4)
 
 
@@ -43,7 +49,7 @@ async def fetch_episode_names_in_date_range(episodes, start_year, end_year):
         print(f"There are no episodes that aired between {start_year} and {end_year}:")
 
 
-async def fetch_and_save(client, entity, filename, start_year=None, end_year=None):
+async def fetch_and_save(client, entity, start_year=None, end_year=None):
     """
     Fetch data for a specific entity and save it to a JSON file.
     Parameters:
@@ -59,7 +65,7 @@ async def fetch_and_save(client, entity, filename, start_year=None, end_year=Non
     if entity == "episode":
         await fetch_episode_names_in_date_range(data, start_year=start_year, end_year=end_year)
     # Save the fetched data to a JSON file
-    await save_to_json(data, filename)
+    await save_to_json(data, entity)
 
 
 async def main():
@@ -70,9 +76,9 @@ async def main():
     """
     async with RickAndMortyClient() as client:
         # Fetch and save data for Character, Location, and Episode
-        await fetch_and_save(client, "character", "../character.json")
-        await fetch_and_save(client, "location", "../location.json")
-        await fetch_and_save(client, "episode", "../episode.json", start_year=2017, end_year=2021)
+        await fetch_and_save(client, "character", )
+        await fetch_and_save(client, "location", )
+        await fetch_and_save(client, "episode", start_year=2017, end_year=2021)
 
 
 # Entry point for the async application
